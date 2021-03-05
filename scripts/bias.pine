@@ -1,0 +1,51 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © kat3samsin
+
+//@version=4
+strategy("BIAS", overlay=false)
+
+//ALMA
+source = close
+windowsize = input(title="Window Size", type=input.integer, defval=15)
+ALMAoffset = input(title="ALMAOffset", type=input.float, defval=0.85)
+sigma = input(title="Sigma", type=input.float, defval=6)
+ALMA15 = alma(source, windowsize, ALMAoffset, sigma)
+
+// chop28
+length = input(28, minval=1)
+ci = 100 * log10(sum(atr(1), length) / (highest(length) - lowest(length))) / log10(length)
+//offset = input(0, "Offset", type = input.integer, minval = -500, maxval = 500)
+
+//stochastics
+periodK = input(14, title="K", minval=1)
+periodD = input(3, title="D", minval=1)
+smoothK = input(3, title="Smooth", minval=1)
+k = sma(stoch(close, high, low, periodK), smoothK)
+d = sma(k, periodD)
+ 
+//RSI
+_rsi = rsi(close, 14)
+
+_stochIsMoreThanRSI = k > _rsi and d > _rsi
+_barSinceRSICrossoverCI = barssince(crossover(_rsi, ci))
+_barSinceStochMorethanRSI = barssince(_stochIsMoreThanRSI)
+_period = input(5, title="RSI/CI Lookback period", minval=3)
+
+//conditions
+BIAScondition1 = _stochIsMoreThanRSI and crossover(_rsi, ci)
+BIAScondition2 = _stochIsMoreThanRSI and crossover(k, d) and _barSinceRSICrossoverCI < _period and _barSinceRSICrossoverCI <= _barSinceStochMorethanRSI
+BIASExit = close < ALMA15
+
+//entry/exit
+strategy.entry(id="BIAS1", long = true, qty = strategy.equity/close, when = BIAScondition1)
+strategy.close(id="BIAS1", when = BIASExit)
+strategy.entry(id="BIAS2", long = true, qty = strategy.equity/close, when = BIAScondition2)
+strategy.close(id="BIAS2", when = BIASExit)
+
+plotchar(BIAScondition1, "BIAS1", "1️⃣", location.top)
+plotchar(BIAScondition2, "BIAS2", "2️⃣", location.top)
+
+plot(_rsi, color=color.green, linewidth=2)
+plot(ci, color=color.red, linewidth=2)
+plot(k, color=color.blue)
+plot(d, color=color.orange)
