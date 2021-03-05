@@ -1,5 +1,9 @@
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © kat3samsin
+//Criteria: STOCH > RSI(14) and RSI(14) crossed above CHOP(28)
+//Buy 1: if STOCH is up, RSI(14) crossover CHOP(28)
+//Buy 2: if STOCH is down wait for STOCH crossover(k, d)
+//Sell: close < ALMA15
 
 //@version=4
 strategy("BIAS", overlay=false)
