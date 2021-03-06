@@ -31,13 +31,13 @@ d = sma(k, periodD)
 _rsi = rsi(close, 14)
 
 _stochIsMoreThanRSI = k > _rsi and d > _rsi
-_barSinceRSICrossoverCI = barssince(crossover(_rsi, ci))
-_barSinceStochMorethanRSI = barssince(_stochIsMoreThanRSI)
+_barsSinceRSICrossoverCI = barssince(crossover(_rsi, ci))
+_barsSinceStochMorethanRSI = barssince(_stochIsMoreThanRSI)
 _period = input(5, title="RSI/CI Lookback period", minval=3)
 
 //conditions
 BIAScondition1 = _stochIsMoreThanRSI and crossover(_rsi, ci)
-BIAScondition2 = _stochIsMoreThanRSI and crossover(k, d) and _barSinceRSICrossoverCI < _period and _barSinceRSICrossoverCI <= _barSinceStochMorethanRSI
+BIAScondition2 = _stochIsMoreThanRSI and crossover(k, d) and (_barsSinceRSICrossoverCI < _period and _barsSinceRSICrossoverCI <= _barsSinceStochMorethanRSI)
 BIASExit = close < ALMA15
 
 //entry/exit
