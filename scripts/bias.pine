@@ -38,7 +38,7 @@ _period = input(5, title="RSI/CI Lookback period", minval=3)
 //conditions
 BIAScondition1 = _stochIsMoreThanRSI and crossover(_rsi, ci)
 BIAScondition2 = _stochIsMoreThanRSI and crossover(k, d) and (_barsSinceRSICrossoverCI < _period and _barsSinceRSICrossoverCI <= _barsSinceStochMorethanRSI)
-BIASExit = close < ALMA15
+BIASExit = crossunder(close, ALMA15)
 
 //entry/exit
 strategy.entry(id="BIAS1", long = true, qty = strategy.equity/close, when = BIAScondition1)

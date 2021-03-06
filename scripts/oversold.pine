@@ -1,0 +1,38 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © kat3samsin
+
+//@version=4
+strategy("Oversold", overlay=false)
+
+//rsi
+_rsi = rsi(close, 14)
+
+//sma
+_sma20 = sma(close, 20)
+_sma50 = sma(close, 50)
+_sma200 = sma(close, 200)
+
+//ALMA
+windowsize = input(title="Window Size", type=input.integer, defval=15)
+ALMAoffset = input(title="ALMAOffset", type=input.float, defval=0.85)
+sigma = input(title="Sigma", type=input.float, defval=6)
+ALMA15 = alma(close, windowsize, ALMAoffset, sigma)
+
+//stochastics
+periodK = input(14, title="K", minval=1)
+periodD = input(3, title="D", minval=1)
+smoothK = input(3, title="Smooth", minval=1)
+k = sma(stoch(close, high, low, periodK), smoothK)
+d = sma(k, periodD)
+
+//only execute on downtrend
+closeWithinFifteenPercentOfSMA20 = close >= (_sma20 * .85) and close < _sma20
+OSEntry = _rsi <= 30 and closeWithinFifteenPercentOfSMA20
+OSExit = crossunder(k, d)
+
+strategy.entry(id="OS", long=true, qty=strategy.equity/close, when=OSEntry)
+strategy.close(id="OS", when = OSExit)
+
+plot(_rsi, color=color.red, linewidth=1)
+plot(k, color=color.blue)
+plot(d, color=color.orange)

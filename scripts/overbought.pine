@@ -1,0 +1,27 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © kat3samsin
+
+//@version=4
+strategy("Overbought", overlay=false)
+
+//rsi
+_rsi = rsi(close, 14)
+
+//sma
+_sma50 = sma(close, 50)
+_sma200 = sma(close, 200)
+
+//ALMA
+windowsize = input(title="Window Size", type=input.integer, defval=15)
+ALMAoffset = input(title="ALMAOffset", type=input.float, defval=0.85)
+sigma = input(title="Sigma", type=input.float, defval=6)
+ALMA15 = alma(close, windowsize, ALMAoffset, sigma)
+
+//only execute on uptrend
+OBEntry = _rsi >= 70 and close > _sma50 and _sma50 > _sma200
+OBExit = crossunder(close, ALMA15)
+
+strategy.entry(id="OB", long=true, qty=strategy.equity/close, when=OBEntry)
+strategy.close(id="OB", when = OBExit)
+
+plot(_rsi, color=color.red, linewidth=1)
