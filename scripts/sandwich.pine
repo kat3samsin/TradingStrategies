@@ -1,0 +1,46 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © kat3samsin
+
+//@version=4
+strategy("Sandwich", overlay=false, process_orders_on_close=true)
+
+//rsi
+rsiPeriod = input(14, title="RSI", minval=1)
+_rsi = rsi(close, rsiPeriod)
+
+//ALMA
+source = close
+windowsize = input(title="Window Size", type=input.integer, defval=15)
+ALMAoffset = input(title="ALMA Offset", type=input.float, defval=0.85)
+sigma = input(title="Sigma", type=input.float, defval=6)
+ALMA15 = alma(source, windowsize, ALMAoffset, sigma)
+
+// chop28
+chopPeriod = input(28, title="CHOP", minval=1)
+ci = 100 * log10(sum(atr(1), chopPeriod) / (highest(chopPeriod) - lowest(chopPeriod))) / log10(chopPeriod)
+
+//stochastics
+periodK = input(14, title="K", minval=1)
+periodD = input(3, title="D", minval=1)
+smoothK = input(3, title="Smooth", minval=1)
+k = sma(stoch(close, high, low, periodK), smoothK)
+d = sma(k, periodD)
+
+//condition
+stochKSandwich = k <= _rsi and k >= ci
+stochDSandwich = d <= _rsi and d >= ci
+stochIsUp = k > d
+sandwichEntry = _rsi > ci and (stochKSandwich and stochDSandwich) and stochIsUp
+sandwichExit = close < ALMA15
+
+//entry/exit
+strategy.entry(id="SandwichEntry", long = true, qty = strategy.equity/close, when = sandwichEntry)
+strategy.close(id="SandwichEntry", when = sandwichExit)
+
+//plots
+plotchar(sandwichEntry, "SANDWICH", "🔼", location.top)
+
+plot(_rsi, color=color.green, linewidth=2)
+plot(ci, color=color.red, linewidth=2)
+plot(k, color=color.blue)
+plot(d, color=color.orange)

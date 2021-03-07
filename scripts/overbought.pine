@@ -2,7 +2,7 @@
 // © kat3samsin
 
 //@version=4
-strategy("Overbought", overlay=false)
+strategy("Overbought", overlay=false, process_orders_on_close=true)
 
 //rsi
 _rsi = rsi(close, 14)
