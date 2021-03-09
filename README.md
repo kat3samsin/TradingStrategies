@@ -1,2 +1,3 @@
 # Trading Strategies
-Pine scripts for TradingView strategies
+Collection of pine scripts for TradingView strategies
+

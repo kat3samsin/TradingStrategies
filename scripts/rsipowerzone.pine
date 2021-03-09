@@ -1,0 +1,31 @@
+//@version=4
+//Author: https://github.com/kat3samsin
+
+strategy("RSI powerzone", overlay=false, process_orders_on_close=true)
+
+// Conditions:
+// Uptrend: close > 50sma and 50sma > 100sma > 200sma
+// Entry: RSI(4) <= 30
+// Exit: RSI(4) >= 55
+
+longSMA = sma(close, 200)  // 200-day moving average
+closeSMA = sma(close, 20)
+
+// entry/exit
+RSIEntry = input(30, "RSI Entry")
+RSIExit = input(55, "RSI Exit")
+RSILength = input(4, "RSI Length")
+
+// testPeriod() =>
+//     time >= testPeriodStart and time <= testPeriodStop ? true : false
+
+_rsi = rsi(close, RSILength)  // relative strength indicator with custom length
+uptrend = close > sma(close, 50) and sma(close, 50) > sma(close, 100) and sma(close, 100) > sma(close, 200)
+
+
+strategy.entry("RSI", strategy.long, 100, when=uptrend and _rsi <= RSIEntry)
+strategy.close("RSI", when=_rsi <= RSIExit)
+    
+plot(_rsi, color=color.red, linewidth=1)
+plot(30, color=color.gray)
+plot(55, color=color.gray)
