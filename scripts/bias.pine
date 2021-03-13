@@ -10,10 +10,10 @@ strategy("BIAS", overlay=false, process_orders_on_close=true)
 
 //ALMA
 source = close
-windowsize = input(title="Window Size", type=input.integer, defval=15)
-ALMAoffset = input(title="ALMAOffset", type=input.float, defval=0.85)
+windowsize = input(title="ALMA", type=input.integer, defval=15)
+ALMAoffset = input(title="ALMA Offset", type=input.float, defval=0.85)
 sigma = input(title="Sigma", type=input.float, defval=6)
-ALMA15 = alma(source, windowsize, ALMAoffset, sigma)
+ALMA = alma(source, windowsize, ALMAoffset, sigma)
 
 // chop28
 length = input(28, minval=1)
@@ -21,16 +21,16 @@ ci = 100 * log10(sum(atr(1), length) / (highest(length) - lowest(length))) / log
 //offset = input(0, "Offset", type = input.integer, minval = -500, maxval = 500)
 
 //stochastics
-periodK = input(14, title="K", minval=1)
-periodD = input(3, title="D", minval=1)
-smoothK = input(3, title="Smooth", minval=1)
+periodK = input(14, title="Stoch K", minval=1)
+periodD = input(3, title="Stoch D", minval=1)
+smoothK = input(3, title="Stoch Smooth", minval=1)
 k = sma(stoch(close, high, low, periodK), smoothK)
 d = sma(k, periodD)
  
 //RSI
 _rsi = rsi(close, 14)
 
-_stochIsMoreThanRSI = k > _rsi and d > _rsi
+_stochIsMoreThanRSI = k > _rsi
 _barsSinceRSICrossoverCI = barssince(crossover(_rsi, ci))
 _barsSinceStochMorethanRSI = barssince(_stochIsMoreThanRSI)
 _period = input(5, title="RSI/CI Lookback period", minval=3)
@@ -38,7 +38,7 @@ _period = input(5, title="RSI/CI Lookback period", minval=3)
 //conditions
 BIAScondition1 = _stochIsMoreThanRSI and crossover(_rsi, ci)
 BIAScondition2 = _stochIsMoreThanRSI and crossover(k, d) and (_barsSinceRSICrossoverCI < _period and _barsSinceRSICrossoverCI <= _barsSinceStochMorethanRSI)
-BIASExit = close < ALMA15
+BIASExit = close < ALMA
 
 //entry/exit
 strategy.entry(id="BIAS1", long = true, qty = strategy.equity/close, when = BIAScondition1)
