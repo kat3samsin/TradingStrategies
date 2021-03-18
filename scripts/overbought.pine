@@ -17,11 +17,20 @@ ALMAoffset = input(title="ALMAOffset", type=input.float, defval=0.85)
 sigma = input(title="Sigma", type=input.float, defval=6)
 ALMA15 = alma(close, windowsize, ALMAoffset, sigma)
 
+//stochastics
+periodK = input(14, title="Stoch K", minval=1)
+periodD = input(3, title="Stoch D", minval=1)
+smoothK = input(3, title="Stoch Smooth", minval=1)
+k = sma(stoch(close, high, low, periodK), smoothK)
+d = sma(k, periodD)
+
 //only execute on uptrend
-OBEntry = _rsi >= 70 and close > _sma50 and _sma50 > _sma200
+OBEntry = _rsi >= 70 and close > _sma50 and _sma50 > _sma200 and k > d
 OBExit = crossunder(close, ALMA15)
 
 strategy.entry(id="OB", long=true, qty=strategy.equity/close, when=OBEntry)
 strategy.close(id="OB", when = OBExit)
 
-plot(_rsi, color=color.red, linewidth=1)
+plot(_rsi, color=color.green, linewidth=1)
+plot(k, color=color.blue)
+plot(d, color=color.orange)

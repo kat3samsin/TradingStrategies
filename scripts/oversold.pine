@@ -27,12 +27,12 @@ d = sma(k, periodD)
 
 //only execute on downtrend
 closeWithinFifteenPercentOfSMA20 = close >= (_sma20 * .85) and close < _sma20
-OSEntry = _rsi <= 30 and closeWithinFifteenPercentOfSMA20
+OSEntry = _rsi <= 30 and closeWithinFifteenPercentOfSMA20 and k > d
 OSExit = crossunder(k, d)
 
 strategy.entry(id="OS", long=true, qty=strategy.equity/close, when=OSEntry)
 strategy.close(id="OS", when = OSExit)
 
-plot(_rsi, color=color.red, linewidth=1)
+plot(_rsi, color=color.green, linewidth=1)
 plot(k, color=color.blue)
 plot(d, color=color.orange)
