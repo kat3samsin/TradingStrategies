@@ -27,9 +27,12 @@ k = sma(stoch(close, high, low, periodK), smoothK)
 d = sma(k, periodD)
 
 //condition
-stochCrossoverCI = crossover(k, ci) and crossover(d, ci)
+//rsi should be above CI in past x days
+_period = input(5, title="RSI/CI Lookback period", minval=1)
+_rsiAboveCI = barssince(crossover(_rsi, ci)) >= _period
+stochCrossoverCI = crossover(k, ci)
 stochIsUp = k > d
-undercutEntry = _rsi > ci and stochCrossoverCI and stochIsUp
+undercutEntry = _rsiAboveCI and stochCrossoverCI and stochIsUp and _rsi > ci
 undercutExit = k < d
 
 //entry/exit
